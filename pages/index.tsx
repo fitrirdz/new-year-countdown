@@ -7,7 +7,7 @@ export default function Home() {
   // Set the date we're counting down to
   const nextYear = new Date().getFullYear() + 1;
 
-  const targetDate = new Date(`Jan 1, ${2025} 00:00:00`).getTime();
+  const targetDate = new Date(`Jan 1, ${nextYear} 00:00:00`).getTime();
   const calculateTimeLeft = useCallback(() => {
     const now = new Date().getTime();
     const difference = targetDate - now;
