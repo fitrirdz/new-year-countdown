@@ -9,7 +9,7 @@ export default function Home() {
 
   const targetDate = new Date(`Jan 1, ${nextYear} 00:00:00`).getTime();
   const calculateTimeLeft = useCallback(() => {
-  const now = new Date().getTime();
+    const now = new Date().getTime();
     const difference = targetDate - now;
 
     if (difference <= 0) {
@@ -40,6 +40,14 @@ export default function Home() {
       return { opacity: (100 - 16.67 * currentHour) / 100 };
     }
   }, [currentHour]);
+  const waveStyling = {
+    background: `url(/wave.png)`,
+    backgroundSize: '1000px 100px',
+  };
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -56,7 +64,7 @@ export default function Home() {
     }
   }, [timeLeft, nextYear]);
 
-  return (
+  return isClient ? (
     <>
       <Head>
         <title>Countdown to {nextYear}</title>
@@ -130,12 +138,12 @@ export default function Home() {
                 : `brightness(${(24 - currentHour) * 8.3 + 22.7}%)`,
           }}
         >
-          <div className='wave' id='wave1'></div>
-          <div className='wave' id='wave2'></div>
-          <div className='wave' id='wave3'></div>
-          <div className='wave' id='wave4'></div>
+          <div className='wave' id='wave1' style={waveStyling} />
+          <div className='wave' id='wave2' style={waveStyling} />
+          <div className='wave' id='wave3' style={waveStyling} />
+          <div className='wave' id='wave4' style={waveStyling} />
         </div>
       </main>
     </>
-  );
+  ) : null;
 }
