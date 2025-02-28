@@ -105,7 +105,7 @@ export default function Home() {
                     </>
                   ) : (
                     <>
-                      {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
+                      {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {' '}
                       {timeLeft.seconds}s
                     </>
                   )}
