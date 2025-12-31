@@ -11,11 +11,28 @@ export default function Home() {
   const calculateTimeLeft = useCallback(() => {
     const now = new Date().getTime();
     const difference = targetDate - now;
-
-    if (difference <= 0) {
+    // 24 hours in ms
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+    if (difference <= 0 && difference > -twentyFourHours) {
+      // Within 24 hours after midnight
       return { days: 0, hours: 0, minutes: 0, seconds: 0, isNewYear: true };
+    } else if (difference <= -twentyFourHours) {
+      // After 24 hours, start new countdown for next year
+      const nextTargetDate = new Date(
+        `Jan 1, ${nextYear + 1} 00:00:00`
+      ).getTime();
+      const newDifference = nextTargetDate - now;
+      return {
+        days: Math.floor(newDifference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor(
+          (newDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        ),
+        minutes: Math.floor((newDifference % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((newDifference % (1000 * 60)) / 1000),
+        isNewYear: false,
+      };
     }
-
+    // Before midnight
     return {
       days: Math.floor(difference / (1000 * 60 * 60 * 24)),
       hours: Math.floor(
@@ -25,7 +42,7 @@ export default function Home() {
       seconds: Math.floor((difference % (1000 * 60)) / 1000),
       isNewYear: false,
     };
-  }, [targetDate]);
+  }, [targetDate, nextYear]);
 
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
   const currentHour = useMemo(() => {
@@ -44,10 +61,41 @@ export default function Home() {
     background: `url(/wave.png)`,
     backgroundSize: '1000px 100px',
   };
+
+  // Fun: Firework reflection effect on island
   const [isClient, setIsClient] = useState(false);
+  const [islandGlow, setIslandGlow] = useState('');
+
+  // Firework colors
+  const fireworkColors = [
+    'rgba(255, 0, 80, 0.5)', // pink
+    'rgba(0, 255, 255, 0.5)', // cyan
+    'rgba(255, 255, 0, 0.5)', // yellow
+    'rgba(0, 255, 100, 0.5)', // green
+    'rgba(255, 120, 0, 0.5)', // orange
+    'rgba(0, 120, 255, 0.5)', // blue
+    'rgba(255, 0, 200, 0.5)', // magenta
+  ];
+
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Animate island color during New Year
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (timeLeft.isNewYear) {
+      interval = setInterval(() => {
+        const color = fireworkColors[Math.floor(Math.random() * fireworkColors.length)];
+        setIslandGlow(color);
+      }, 350);
+    } else {
+      setIslandGlow('');
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [timeLeft.isNewYear]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -105,7 +153,7 @@ export default function Home() {
                     </>
                   ) : (
                     <>
-                      {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {' '}
+                      {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m{' '}
                       {timeLeft.seconds}s
                     </>
                   )}
@@ -124,6 +172,24 @@ export default function Home() {
                         : `brightness(${(24 - currentHour) * 8.3 + 22.7}%)`,
                   }}
                 />
+                {/* Firework reflection overlay */}
+                {timeLeft.isNewYear && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '100%',
+                      height: '55vh',
+                      pointerEvents: 'none',
+                      background: `radial-gradient(ellipse at 50% 80%, ${islandGlow} 0%, transparent 60%)`,
+                      transition: 'background 0.3s ease-out',
+                      zIndex: 2,
+                      mixBlendMode: 'screen',
+                    }}
+                  />
+                )}
               </div>
             </div>
           </div>
